@@ -21,18 +21,21 @@ type Weather = {
 type MainActivity() = 
     inherit Activity()
 
+    // Convert Kelvin to Celsius
     let toCelsius temp = System.Math.Round(temp - 273.15)
+
+    // Create nice looking string from Kelvin
     let formatDegrees temp = 
         let temp = toCelsius(temp)
         let mutable out = temp.ToString()
         if temp > 0.0 then
             out <- "+" + out
         out + "°C"
-            
+
+    // Save selected city
     let mutable city = "Turku"
 
-    // http://tomasp.net/blog/csharp-fsharp-async-intro.aspx/
-    // http://developer.xamarin.com/recipes/android/web_services/consuming_services/call_a_rest_web_service/
+    // Load JSON file from url
     let loadJSON(url:string) = async {
         let request = HttpWebRequest.Create(url)
         use! response = request.AsyncGetResponse()
@@ -40,8 +43,10 @@ type MainActivity() =
         return JsonObject.Load(stream)
     }
 
+    // Init activity
     override this.OnCreate(bundle) =                 
         base.OnCreate(bundle)
+
         // Set our view from the "main" layout resource
         this.SetContentView(Resource_Layout.Main)
 
@@ -50,10 +55,9 @@ type MainActivity() =
         let cityText = this.FindViewById<TextView>(Resource_Id.cityText)
         let descriptionText = this.FindViewById<TextView>(Resource_Id.descriptionText)
         let tempText = this.FindViewById<TextView>(Resource_Id.tempText)
-
-        // Set up spinner
         let spinner = this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
-        // Load list of cities from somewhere
+
+        // Append adapter to spinner
         let citiesList = [|"Turku"; "Helsinki"; "Tampere"|]
         let citiesAdapter = new ArrayAdapter(this, Android.Resource.Layout.SimpleSpinnerItem, citiesList)
         citiesAdapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem)
@@ -65,7 +69,7 @@ type MainActivity() =
             city <- selected.ToString()
 
             if this.isOnline() then
-                // Call openweathermap API to get weather
+                // Call openweathermap API to get weather json
                 let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + city + ",fi"
                 let json =
                     loadJSON(url) 
