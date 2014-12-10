@@ -21,16 +21,18 @@ type Weather = {
 type MainActivity() = 
     inherit Activity()
 
-    // Convert Kelvin to Celsius
-    let toCelsius temp = System.Math.Round(temp - 273.15)
+    // Temperature scales transformation
+    let KelvinToCelsius temp = System.Math.Round(temp - 273.15)
+    let KelvinToFahrenheit temp = System.Math.Round(temp * 1.8 - 459.67)
 
-    // Create nice looking string from Kelvin
-    let formatDegrees temp = 
-        let temp = toCelsius(temp)
-        let mutable out = temp.ToString()
-        if temp > 0.0 then
-            out <- "+" + out
-        out + "°C"
+    // Add scale to the temperature
+    let formatDegrees scale temp =
+        let sign = if temp > 0.0 then "+" else "-"
+        sign + temp.ToString() + "°" + scale
+
+    // Transform Kelvin to string with degrees mark
+    let KelvinToCelsiusString = KelvinToCelsius >> formatDegrees "C"
+    let KelvinToFahrenheitString = KelvinToFahrenheit >> formatDegrees "F"
 
     // Save selected city
     let mutable city = "Turku"
@@ -86,7 +88,7 @@ type MainActivity() =
                     dateText.Text <- System.DateTime.Now.ToShortDateString()
                     cityText.Text <- weather.city
                     descriptionText.Text <- weather.description
-                    tempText.Text <- formatDegrees(weather.temp)
+                    tempText.Text <- KelvinToCelsiusString weather.temp
                 )
 
         )
