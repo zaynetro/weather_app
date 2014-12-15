@@ -13,14 +13,36 @@
         <Spinner
             android:id="@+id/citiesSpinner"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:spinnerMode="dialog"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp" />
         <TextView
-            android:text="City"
+            android:text="Today"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/cityText"
+            android:id="@+id/dateNewText"
             android:textSize="40dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:textAlignment="center"
+            android:gravity="center" />
+        <TextView
+            android:text="Temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tempText"
+            android:textSize="60dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:textAlignment="center"
+            android:gravity="center" />
         <TextView
             android:text="Description"
             android:layout_width="match_parent"
@@ -28,22 +50,22 @@
             android:id="@+id/descriptionText"
             android:textSize="30dp"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
-        <TextView
-            android:text="Temperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/tempText"
-            android:textSize="50dp"
-            android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:gravity="center" />
         <TextView
             android:text="Date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/dateText"
-            android:textSize="30dp"
+            android:textSize="20dp"
             android:layout_marginTop="10dp" />
     </LinearLayout>
+    <TextView
+        android:text="City"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/cityText"
+        android:textSize="20dp"
+        android:layout_marginBottom="10dp" />
 </LinearLayout>
