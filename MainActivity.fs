@@ -8,6 +8,7 @@ open Android.Runtime
 open Android.Views
 open Android.Widget
 open Android.Net
+open Android.Graphics
 open System.Net
 open System.Json
 
@@ -20,6 +21,7 @@ type MainActivity() =
     inherit Activity()
     // Save selected city
     let mutable city = "Turku"
+    let mutable graph:LinearLayout = null
     
     // Return stored city
     let getSelectedCity = 
@@ -48,6 +50,7 @@ type MainActivity() =
         let descriptionText = this.FindViewById<TextView>(Resource_Id.descriptionText)
         let tempText = this.FindViewById<TextView>(Resource_Id.tempText)
         let spinner = this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
+        graph <- this.FindViewById<LinearLayout>(Resource_Id.graph)
 
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
@@ -62,7 +65,8 @@ type MainActivity() =
         | _ ->
             let index = citiesList |> Array.findIndex (fun elem -> elem = city)
             spinner.SetSelection(index)
-
+        
+        this.drawBar()
 
         // Handle new item selection 
         spinner.ItemSelected.Add(fun e -> 
@@ -72,21 +76,31 @@ type MainActivity() =
             if this.isOnline() then 
                 // Call openweathermap API to get weather json
                 let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + city + ",fi"
-                let json = loadJSON (url) |> Async.RunSynchronously
-                
-                let weather = 
-                    { city = string (json.["name"])
-                      temp = float (json.["main"].["temp"])
-                      description = removeQuotes (json.["weather"].[0].["description"].ToString()) }
+                let fetchedCity = 
+                    loadJSON (url) 
+                    |> Async.RunSynchronously  
+                    |> jsonToCity
+
                 this.RunOnUiThread(fun () -> 
                     // Update text values
                     dateText.Text <- System.DateTime.Now.ToShortDateString()
-                    cityText.Text <- weather.city
-                    descriptionText.Text <- weather.description
-                    tempText.Text <- KelvinToCelsiusString weather.temp))
+                    cityText.Text <- fetchedCity.name
+                    descriptionText.Text <- fetchedCity.weather.description
+                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur))
     
     // Check if device has internet connection
     member this.isOnline() = 
         match this.GetSystemService(Context.ConnectivityService) with
         | :? ConnectivityManager as cm -> (cm.ActiveNetworkInfo) <> null
         | _ -> false
+
+    member this.drawBar() = 
+        let elem = new LinearLayout(this)
+        let param = new ViewGroup.LayoutParams(30, 400)
+        elem.LayoutParameters <- param
+        elem.SetBackgroundColor(Color.White)
+        graph.AddView(elem)
+
+    (*
+    Load weather forecast from http://api.openweathermap.org/data/2.5/forecast?q=Turku,fi
+    *)
