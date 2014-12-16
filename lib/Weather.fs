@@ -42,8 +42,11 @@ module Weather =
 
     // Add scale to the temperature
     let formatDegrees scale temp =
-        let sign = if temp > 0.0 then "+" else "-"
-        sign + temp.ToString() + "°" + scale
+        let sign = 
+            if temp > 0.0 then "+" 
+            elif temp < 0.0 then "-"
+            else "" // zero case
+        sign + abs(temp).ToString() + "°" + scale
 
     // Transform Kelvin to string with degrees mark
     let KelvinToCelsiusString = KelvinToCelsius >> formatDegrees "C"
