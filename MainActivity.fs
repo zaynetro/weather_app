@@ -51,6 +51,7 @@ type MainActivity() =
         let tempText = this.FindViewById<TextView>(Resource_Id.tempText)
         let spinner = this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
         graph <- this.FindViewById<LinearLayout>(Resource_Id.graph)
+        let progressBar = this.FindViewById<ProgressBar>(Resource_Id.progressBar)
 
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
@@ -69,7 +70,8 @@ type MainActivity() =
         this.drawBar()
 
         // Handle new item selection 
-        spinner.ItemSelected.Add(fun e -> 
+        spinner.ItemSelected.Add(fun e ->
+            progressBar.Visibility <- ViewStates.Visible
             let selected = spinner.GetItemAtPosition(e.Position)
             city <- selected.ToString()
             saveSelectedCity (city) |> ignore
@@ -79,14 +81,17 @@ type MainActivity() =
                 let fetchedCity = 
                     loadJSON (url) 
                     |> Async.RunSynchronously  
-                    |> jsonToCity
+                    |> jsonToCity                
 
-                this.RunOnUiThread(fun () -> 
+                this.RunOnUiThread(fun () ->
+                    progressBar.Visibility <- ViewStates.Invisible
                     // Update text values
                     dateText.Text <- System.DateTime.Now.ToShortDateString()
                     cityText.Text <- fetchedCity.name
                     descriptionText.Text <- fetchedCity.weather.description
-                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur))
+                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur)
+                )
+            
     
     // Check if device has internet connection
     member this.isOnline() = 
