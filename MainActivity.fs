@@ -71,20 +71,21 @@ type MainActivity() =
 
         // Handle new item selection 
         spinner.ItemSelected.Add(fun e ->
+            // Show progress bar
             this.RunOnUiThread(fun () ->
                 progressBar.Visibility <- ViewStates.Visible
             )
-            let selected = spinner.GetItemAtPosition(e.Position)
-            city <- selected.ToString()
-            saveSelectedCity (city) |> ignore
-            if this.isOnline() then 
+
+            // Define background process function
+            let backgroundLoad () =
                 // Call openweathermap API to get weather json
                 let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + city + ",fi"
                 let fetchedCity = 
                     loadJSON (url) 
                     |> Async.RunSynchronously  
-                    |> jsonToCity                
-
+                    |> jsonToCity
+                
+                // Update UI
                 this.RunOnUiThread(fun () ->
                     progressBar.Visibility <- ViewStates.Invisible
                     // Update text values
@@ -93,6 +94,16 @@ type MainActivity() =
                     descriptionText.Text <- fetchedCity.weather.description
                     tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur
                 )
+            
+            // Save selected city
+            let selected = spinner.GetItemAtPosition(e.Position)
+            city <- selected.ToString()
+            saveSelectedCity (city) |> ignore
+
+            if this.isOnline() then              
+                // Load weather in different thread
+                let thread = new System.Threading.Thread(new System.Threading.ThreadStart(backgroundLoad))
+                thread.Start()                
             else
                 let alert = new AlertDialog.Builder(this)
                 alert.SetTitle("No internet connection") |> ignore
