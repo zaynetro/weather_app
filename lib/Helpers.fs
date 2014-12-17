@@ -15,5 +15,5 @@ module Helpers =
 
     // Remove quotes from the string caused by JSONValue.toString()
     let removeQuotes(str:string) = 
-        let copy = str.Replace("\"", "");
-        copy
+        let str' = str.Replace("\"", "");
+        str'
