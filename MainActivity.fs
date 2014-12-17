@@ -71,7 +71,9 @@ type MainActivity() =
 
         // Handle new item selection 
         spinner.ItemSelected.Add(fun e ->
-            progressBar.Visibility <- ViewStates.Visible
+            this.RunOnUiThread(fun () ->
+                progressBar.Visibility <- ViewStates.Visible
+            )
             let selected = spinner.GetItemAtPosition(e.Position)
             city <- selected.ToString()
             saveSelectedCity (city) |> ignore
@@ -89,9 +91,21 @@ type MainActivity() =
                     dateText.Text <- System.DateTime.Now.ToShortDateString()
                     cityText.Text <- fetchedCity.name
                     descriptionText.Text <- fetchedCity.weather.description
-                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur)
+                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur
                 )
-            
+            else
+                let alert = new AlertDialog.Builder(this)
+                alert.SetTitle("No internet connection") |> ignore
+                alert.SetMessage("You device is not connected to the internet") |> ignore
+                (*alert.SetNegativeButton("Done", fun (sender, e) ->
+                    // close dialog
+                    printf("body")
+                ) |> ignore*)
+                this.RunOnUiThread(fun () ->
+                    alert.Show() |> ignore
+                    progressBar.Visibility <- ViewStates.Invisible
+                )
+        )
     
     // Check if device has internet connection
     member this.isOnline() = 
