@@ -81,7 +81,7 @@ type MainActivity() =
             let backgroundLoad () =
                 // Call openweathermap API to get weather json
                 let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + city + ",fi"
-                let fetchedCity = 
+                let fetchedCity =
                     loadJSON (url) 
                     |> Async.RunSynchronously  
                     |> jsonToCity

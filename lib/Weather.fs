@@ -1,7 +1,18 @@
 ﻿namespace Weather_v1
 
-open Helpers
+open System
 open System.Json
+
+open Helpers
+
+[<Measure>] type K
+[<Measure>] type degC
+[<Measure>] type degF
+
+type TempValue = 
+    | Kelvin of float<K>
+    | Celsius of float<degC>
+    | Fahrenheit of float<degF>
 
 type WindType = {
     speed : float
@@ -40,17 +51,25 @@ module Weather =
     let KelvinToCelsius temp = System.Math.Round(temp - 273.15)
     let KelvinToFahrenheit temp = System.Math.Round(temp * 1.8 - 459.67)
 
+    // Convert temperatures using units of measure
+    let convertKtoC (temp:float<K>) = temp * 1.0<degC/K> - 273.15<degC>
+    let convertKtoF (temp:float<K>) = temp * 1.8<degF/K> - 459.67<degF>
+
+    let convertStringtoK str = let temp = (float str) * 1.0<K> in str
+
     // Add scale to the temperature
-    let formatDegrees scale temp =
+    let formatDegrees (scale:string) (temp:float<'u>) =
         let sign = 
-            if temp > 0.0 then "+" 
-            elif temp < 0.0 then "-"
+            if temp > 0.0<_> then "+" 
+            elif temp < 0.0<_> then "-"
             else "" // zero case
         sign + abs(temp).ToString() + "°" + scale
 
     // Transform Kelvin to string with degrees mark
     let KelvinToCelsiusString = KelvinToCelsius >> formatDegrees "C"
     let KelvinToFahrenheitString = KelvinToFahrenheit >> formatDegrees "F"
+
+    let convertKtoCString = convertKtoC >> formatDegrees "C"
 
     // Get LatLng variable from JsonValue
     let jsonToLatLng (json:JsonValue) =
