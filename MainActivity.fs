@@ -11,6 +11,7 @@ open Android.Net
 open Android.Graphics
 open System.Net
 open System.Json
+open System.Threading
 
 // Load modules
 open Helpers
@@ -102,7 +103,7 @@ type MainActivity() =
 
             if this.isOnline() then              
                 // Load weather in different thread
-                let thread = new System.Threading.Thread(new System.Threading.ThreadStart(backgroundLoad))
+                let thread = new Thread(new ThreadStart(backgroundLoad))
                 thread.Start()                
             else
                 let alert = new AlertDialog.Builder(this)
