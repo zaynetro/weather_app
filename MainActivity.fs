@@ -22,7 +22,7 @@ type MainActivity() =
     inherit Activity()
     // Save selected city
     let mutable cityName = "Turku"
-    [<DefaultValue>] val mutable city:CityType
+    [<DefaultValue>] val mutable city:CityWeatherType
 
     // views
     let mutable graph:LinearLayout = null
@@ -125,7 +125,7 @@ type MainActivity() =
             this.city <-
                 loadJSON (url) 
                 |> Async.RunSynchronously  
-                |> jsonToCity          
+                |> jsonToCityWeather
             
             this.setTempVal (getSavedVal "scale")
             // Update UI

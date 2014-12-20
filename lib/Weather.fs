@@ -43,7 +43,16 @@ type CityType = {
     name : string
     coords : LatLngType
     country : string
+}
+
+type CityWeatherType = {
+    city : CityType
     weather : WeatherType
+}
+
+type ForecastType = {
+    city : CityType
+    list : WeatherType[]
 }
 
 module Weather = 
@@ -113,7 +122,24 @@ module Weather =
             id = int (json.["id"])
             name = removeQuotes (json.["name"].ToString())
             coords = jsonToLatLng json.["coord"]
-            country = removeQuotes (json.["sys"].["country"].ToString())
-            weather = jsonToWeather json
+            country = // Handle two different inputs
+                if json.ContainsKey "sys" then removeQuotes (json.["sys"].["country"].ToString())
+                else removeQuotes (json.["country"].ToString())
         }
         city
+
+    // Get CityWeather from JsonValue
+    let jsonToCityWeather (json:JsonValue) =
+        let cityWeather = {
+            city = jsonToCity json
+            weather = jsonToWeather json
+        }
+        cityWeather
+
+    // Get Forecast from JsonValue
+    let jsonToForecast (json:JsonValue) =
+        let forecast = {
+            city = jsonToCity json.["city"]
+            list = [| for item in new JsonArray(json.["list"]) -> jsonToWeather item |]
+        }
+        forecast
