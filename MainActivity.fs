@@ -28,7 +28,6 @@ type MainActivity() =
     let mutable graph:LinearLayout = null
     let mutable tempText:TextView = null
     let mutable dateText:TextView = null
-    let mutable cityText:TextView = null
     let mutable descriptionText:TextView = null
     let mutable progressBar:ProgressBar = null
     let mutable spinner:Spinner = null
@@ -44,7 +43,6 @@ type MainActivity() =
 
         // Get views
         dateText <- this.FindViewById<TextView>(Resource_Id.dateText)
-        cityText <- this.FindViewById<TextView>(Resource_Id.cityText)
         descriptionText <- this.FindViewById<TextView>(Resource_Id.descriptionText)
         tempText <- this.FindViewById<TextView>(Resource_Id.tempText)
         graph <- this.FindViewById<LinearLayout>(Resource_Id.graph)
@@ -52,9 +50,6 @@ type MainActivity() =
         spinner <- this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
         celsiusScale <- this.FindViewById<RadioButton>(Resource_Id.celsiusScale)
         fahrenheitScale <- this.FindViewById<RadioButton>(Resource_Id.fahrenheitScale)
-
-        celsiusScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
-        fahrenheitScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
 
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
@@ -79,10 +74,13 @@ type MainActivity() =
         this.RunOnUiThread(fun () ->
             // Check saved scale
             match scale with
-            | "C" -> celsiusScale.Checked <- true
             | "F" -> fahrenheitScale.Checked <- true
-            | _ -> ()
+            | _ -> celsiusScale.Checked <- true
         )
+
+        // Radio buttons click listeners
+        celsiusScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
+        fahrenheitScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
     
     // Check if device has internet connection
     member this.isOnline() = hasInternetConnection this
@@ -134,7 +132,6 @@ type MainActivity() =
             this.RunOnUiThread(fun () ->
                 progressBar.Visibility <- ViewStates.Invisible
                 dateText.Text <- System.DateTime.Now.ToShortDateString()
-                cityText.Text <- this.city.name
                 descriptionText.Text <- this.city.weather.description
             )
         

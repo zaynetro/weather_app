@@ -60,13 +60,6 @@
             android:layout_marginBottom="5dp"
             android:textAlignment="center"
             android:gravity="center" />
-        <Switch
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/scaleSwitch"
-            android:layout_marginRight="0.0dp"
-            android:textOn="C"
-            android:textOff="F" />
         <RadioGroup
             android:id="@+id/scaleRadio"
             android:layout_width="fill_parent"
@@ -94,13 +87,6 @@
             android:textSize="20dp"
             android:layout_marginTop="10dp" />
     </LinearLayout>
-    <TextView
-        android:text="City"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/cityText"
-        android:textSize="20dp"
-        android:layout_marginBottom="10dp" />
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
