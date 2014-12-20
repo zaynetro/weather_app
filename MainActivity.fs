@@ -21,25 +21,27 @@ open Weather
 type MainActivity() = 
     inherit Activity()
     // Save selected city
-    let mutable city = "Turku"
+    let mutable cityName = "Turku"
     let mutable graph:LinearLayout = null
+    [<DefaultValue>] val mutable city:CityType
+    let mutable tempText:TextView = null
     
     // Return stored city
-    let getSelectedCity = 
+    let getSavedVal (key:string) = 
         let name = Application.Context.GetString(Resource_String.shared_pref_name)
         let prefs = Application.Context.GetSharedPreferences(name, FileCreationMode.Private)
-        prefs.GetString("City", null)
+        prefs.GetString(key, null)
     
     // Update stored city
-    let saveSelectedCity(city:string) = 
+    let saveVal (key:string) value = 
         let name = Application.Context.GetString(Resource_String.shared_pref_name)
         let sharedPref = Application.Context.GetSharedPreferences(name, FileCreationMode.Private)
         let prefEditor = sharedPref.Edit()
-        prefEditor.PutString("City", city) |> ignore
-        prefEditor.Commit()
+        prefEditor.PutString(key, value) |> ignore
+        prefEditor.Commit() |> ignore
     
     // Init activity  
-    override this.OnCreate(bundle) = 
+    override this.OnCreate(bundle) =
         base.OnCreate(bundle)
 
         // Set our view from the "main" layout resource
@@ -49,10 +51,11 @@ type MainActivity() =
         let dateText = this.FindViewById<TextView>(Resource_Id.dateText)
         let cityText = this.FindViewById<TextView>(Resource_Id.cityText)
         let descriptionText = this.FindViewById<TextView>(Resource_Id.descriptionText)
-        let tempText = this.FindViewById<TextView>(Resource_Id.tempText)
+        tempText <- this.FindViewById<TextView>(Resource_Id.tempText)
         let spinner = this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
         graph <- this.FindViewById<LinearLayout>(Resource_Id.graph)
         let progressBar = this.FindViewById<ProgressBar>(Resource_Id.progressBar)
+        let scaleSwitch = this.FindViewById<Switch>(Resource_Id.scaleSwitch)
 
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
@@ -61,16 +64,18 @@ type MainActivity() =
         spinner.Adapter <- citiesAdapter
 
         // Set saved previously city
-        city <- getSelectedCity
-        match city with
+        cityName <- getSavedVal "city"
+        match cityName with
         | null -> ()
         | _ ->
-            let index = citiesList |> Array.findIndex (fun elem -> elem = city)
+            let index = citiesList |> Array.findIndex (fun elem -> elem = cityName)
             spinner.SetSelection(index)
         
         this.drawBar()
 
-        // Handle new item selection 
+        scaleSwitch.CheckedChange.Add(this.toggleDegreeScale)
+
+        // Handle new item selection
         spinner.ItemSelected.Add(fun e ->
             // Show progress bar
             this.RunOnUiThread(fun () ->
@@ -80,8 +85,8 @@ type MainActivity() =
             // Define background process function
             let backgroundLoad () =
                 // Call openweathermap API to get weather json
-                let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + city + ",fi"
-                let fetchedCity =
+                let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + cityName + ",fi"
+                this.city <-
                     loadJSON (url) 
                     |> Async.RunSynchronously  
                     |> jsonToCity
@@ -89,17 +94,26 @@ type MainActivity() =
                 // Update UI
                 this.RunOnUiThread(fun () ->
                     progressBar.Visibility <- ViewStates.Invisible
-                    // Update text values
                     dateText.Text <- System.DateTime.Now.ToShortDateString()
-                    cityText.Text <- fetchedCity.name
-                    descriptionText.Text <- fetchedCity.weather.description
-                    tempText.Text <- KelvinToCelsiusString fetchedCity.weather.temp.cur
+                    cityText.Text <- this.city.name
+                    descriptionText.Text <- this.city.weather.description
+                )
+
+                // Set scale to saved value => update temperature value
+                let scale = getSavedVal "scale"
+                this.RunOnUiThread(fun () ->
+                    // When setting true toggle event is triggered,
+                    // but when setting false - not (why?)
+                    scaleSwitch.Checked <- true
+                    match scale with
+                    | "false" -> scaleSwitch.Toggle()
+                    | _ -> ()
                 )
             
             // Save selected city
             let selected = spinner.GetItemAtPosition(e.Position)
-            city <- selected.ToString()
-            saveSelectedCity (city) |> ignore
+            cityName <- selected.ToString()
+            saveVal "city" cityName
 
             if this.isOnline() then              
                 // Load weather in different thread
@@ -124,13 +138,30 @@ type MainActivity() =
         match this.GetSystemService(Context.ConnectivityService) with
         | :? ConnectivityManager as cm -> (cm.ActiveNetworkInfo) <> null
         | _ -> false
-
+    
+    // Experiments
     member this.drawBar() = 
         let elem = new LinearLayout(this)
         let param = new ViewGroup.LayoutParams(30, 400)
         elem.LayoutParameters <- param
         elem.SetBackgroundColor(Color.White)
         graph.AddView(elem)
+
+    // Trigger scaleSwitch change event
+    member this.toggleDegreeScale (e:CompoundButton.CheckedChangeEventArgs) =
+        let saveScale = saveVal "scale"
+        // TO DO: move saveScale to separate block
+        let value =
+            if e.IsChecked then
+                saveScale "true"
+                KelvinToCelsiusString this.city.weather.temp.cur
+            else
+                saveScale "false"
+                KelvinToFahrenheitString this.city.weather.temp.cur
+
+        this.RunOnUiThread(fun () ->
+            tempText.Text <- value
+        )
 
     (*
     Load weather forecast from http://api.openweathermap.org/data/2.5/forecast?q=Turku,fi
