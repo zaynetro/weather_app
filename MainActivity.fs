@@ -85,10 +85,7 @@ type MainActivity() =
         )
     
     // Check if device has internet connection
-    member this.isOnline() = 
-        match this.GetSystemService(Context.ConnectivityService) with
-        | :? ConnectivityManager as cm -> (cm.ActiveNetworkInfo) <> null
-        | _ -> false
+    member this.isOnline() = hasInternetConnection this
     
     // Experiments
     member this.drawBar() = 
