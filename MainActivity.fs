@@ -152,12 +152,9 @@ type MainActivity() =
             thread.Start()                
         else
             let alert = new AlertDialog.Builder(this)
-            alert.SetTitle("No internet connection") |> ignore
-            alert.SetMessage("You device is not connected to the internet") |> ignore
-            (*alert.SetNegativeButton("Done", fun (sender, e) ->
-                // close dialog
-                printf("body")
-            ) |> ignore*)
+            alert.SetTitle("No internet connection")
+                 .SetMessage("You device is not connected to the internet")
+                 .SetNegativeButton("Done", fun sender e -> ()) |> ignore
             this.RunOnUiThread(fun () ->
                 alert.Show() |> ignore
                 progressBar.Visibility <- ViewStates.Invisible

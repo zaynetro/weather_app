@@ -1,6 +1,6 @@
 ﻿# Weather app
 
-Simple Android application on F# for checking weather in Turku
+Simple Android application on F# for checking weather
 
 ## TO DO
 
