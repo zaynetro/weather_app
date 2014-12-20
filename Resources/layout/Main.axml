@@ -67,6 +67,25 @@
             android:layout_marginRight="0.0dp"
             android:textOn="C"
             android:textOff="F" />
+        <RadioGroup
+            android:id="@+id/scaleRadio"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/celsiusScale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="°C"
+                android:layout_marginRight="20dp"
+                android:textSize="25dp" />
+            <RadioButton
+                android:id="@+id/fahrenheitScale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="°F"
+                android:textSize="25dp" />
+        </RadioGroup>
         <TextView
             android:text="Date"
             android:layout_width="match_parent"
