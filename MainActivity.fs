@@ -17,15 +17,49 @@ open System.Threading
 open Helpers
 open Weather
 
+type ForecastListAdapter(context:Context) =
+    inherit BaseExpandableListAdapter()
+
+    override this.GetChild(groupPosition, childPosition) = new Java.Lang.Object()
+
+    override this.GetChildId(groupPosition, childPosition) = int64 12
+
+    override this.GetChildrenCount(groupPosition) = 1
+
+    override this.GetChildView(groupPosition, childPosition, idLastChild, convertView, parent) = 
+        let mutable view = convertView
+        if view = null then
+            let inflator = LayoutInflater.FromContext context
+            view <- inflator.Inflate(Resource_Layout.city_spinner, parent, false)        
+        view
+
+    override this.GetGroup(groupPosition) = new Java.Lang.Object()
+
+    override this.GetGroupId(groupPosition) = int64 1
+
+    override this.GetGroupView(groupPosition, isExpanded, convertView, parent) =
+        let mutable view = convertView
+        if view = null then
+            let inflator = LayoutInflater.FromContext context
+            view <- inflator.Inflate(Resource_Layout.city_spinner, parent, false)
+        view
+
+    override this.IsChildSelectable(groupPosition, childPosition) = false
+
+    override this.GroupCount with get() = 1
+
+    override this.HasStableIds with get() = true
+
+
 [<Activity(Label = "Weather_v1", MainLauncher = true)>]
 type MainActivity() = 
     inherit Activity()
     // Save selected city
     let mutable cityName = "Turku"
     [<DefaultValue>] val mutable city:CityWeatherType
+    [<DefaultValue>] val mutable forecast:ForecastType
 
     // views
-    let mutable graph:LinearLayout = null
     let mutable tempText:TextView = null
     let mutable dateText:TextView = null
     let mutable descriptionText:TextView = null
@@ -33,6 +67,9 @@ type MainActivity() =
     let mutable spinner:Spinner = null
     let mutable celsiusScale:RadioButton = null
     let mutable fahrenheitScale:RadioButton = null
+    let mutable forecastList:ExpandableListView = null
+
+    let mutable forecastAdapter = null
     
     // Init activity  
     override this.OnCreate(bundle) =
@@ -45,11 +82,12 @@ type MainActivity() =
         dateText <- this.FindViewById<TextView>(Resource_Id.dateText)
         descriptionText <- this.FindViewById<TextView>(Resource_Id.descriptionText)
         tempText <- this.FindViewById<TextView>(Resource_Id.tempText)
-        graph <- this.FindViewById<LinearLayout>(Resource_Id.graph)
         progressBar <- this.FindViewById<ProgressBar>(Resource_Id.progressBar)
         spinner <- this.FindViewById<Spinner>(Resource_Id.citiesSpinner)
         celsiusScale <- this.FindViewById<RadioButton>(Resource_Id.celsiusScale)
         fahrenheitScale <- this.FindViewById<RadioButton>(Resource_Id.fahrenheitScale)
+        forecastList <- this.FindViewById<ExpandableListView>(Resource_Id.forecastList)
+
 
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
@@ -64,8 +102,6 @@ type MainActivity() =
         | _ ->
             let index = citiesList |> Array.findIndex (fun elem -> elem = cityName)
             spinner.SetSelection(index)
-        
-        this.drawBar()
 
         // Handle new item selection
         spinner.ItemSelected.Add(this.triggerCitySelect)
@@ -84,15 +120,8 @@ type MainActivity() =
     
     // Check if device has internet connection
     member this.isOnline() = hasInternetConnection this
-    
-    // Experiments
-    member this.drawBar() = 
-        let elem = new LinearLayout(this)
-        let param = new ViewGroup.LayoutParams(30, 400)
-        elem.LayoutParameters <- param
-        elem.SetBackgroundColor(Color.White)
-        graph.AddView(elem)
-     
+
+    // Set temperature value
     member this.setTempVal scale =
         let value =
             match scale with
@@ -119,7 +148,7 @@ type MainActivity() =
         )
 
         // Define background process function
-        let backgroundLoad () =
+        let backgroundLoad() =
             // Call openweathermap API to get weather json
             let url = @"http://api.openweathermap.org/data/2.5/weather?q=" + cityName + ",fi"
             this.city <-
@@ -143,7 +172,7 @@ type MainActivity() =
         if this.isOnline() then              
             // Load weather in different thread
             let thread = new Thread(new ThreadStart(backgroundLoad))
-            thread.Start()                
+            thread.Start()
         else
             let alert = new AlertDialog.Builder(this)
             alert.SetTitle("No internet connection")
@@ -154,6 +183,15 @@ type MainActivity() =
                 progressBar.Visibility <- ViewStates.Invisible
             )
 
-    (*
-    Load weather forecast from http://api.openweathermap.org/data/2.5/forecast?q=Turku,fi
-    *)
+    member this.loadForecast() =
+        // Call openweathermap API to get forecast json
+        let url = @"http://api.openweathermap.org/data/2.5/forecast?q=" + cityName + ",fi"
+        this.forecast <-
+            loadJSON (url) 
+            |> Async.RunSynchronously  
+            |> jsonToForecast
+        
+        // Update UI
+        this.RunOnUiThread(fun () ->
+            ()
+        )
