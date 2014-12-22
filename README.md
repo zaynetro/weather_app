@@ -4,7 +4,6 @@ Simple Android application on F# for checking weather
 
 ## TO DO
 
-1. Show forecast (graphs? blocks with text?)
-2. Historical data?
-3. Use images to indicate weather
-4. ~~Show loading indicator~~
+1. Use one request to the server (only forecast)
+2. Move weather and forecast modules to fragments
+3. Use images to indicate weather ?
