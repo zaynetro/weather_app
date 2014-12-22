@@ -87,6 +87,9 @@ module Weather =
     // Format humidity (add percent mark)
     let formatHumidity h = h.ToString() + "%"
 
+    // Format pressure
+    let formatPressure p = p.ToString() + "hpa"
+
     // Get LatLng variable from JsonValue
     let jsonToLatLng (json:JsonValue) =
         let coord = {

@@ -41,7 +41,7 @@ type ForecastListAdapter(context:Context, forecast) =
         let descriptionText = view.FindViewById<TextView>(Resource_Id.descriptionText)
         // Set values
         rangeText.Text <- formatRange KelvinToCelsiusString item.temp.min item.temp.max
-        pressureText.Text <- item.temp.pressure.ToString()
+        pressureText.Text <- formatPressure item.temp.pressure
         humidityText.Text <- formatHumidity item.temp.humidity
         descriptionText.Text <- capitalize item.description
         view
