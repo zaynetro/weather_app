@@ -17,12 +17,13 @@ open System.Threading
 open Helpers
 open Weather
 
-type ForecastListAdapter(context:Context) =
+[<AllowNullLiteral>] 
+type ForecastListAdapter(context:Context, forecast) =
     inherit BaseExpandableListAdapter()
 
     override this.GetChild(groupPosition, childPosition) = new Java.Lang.Object()
 
-    override this.GetChildId(groupPosition, childPosition) = int64 12
+    override this.GetChildId(groupPosition, childPosition) = int64 childPosition
 
     override this.GetChildrenCount(groupPosition) = 1
 
@@ -30,25 +31,45 @@ type ForecastListAdapter(context:Context) =
         let mutable view = convertView
         if view = null then
             let inflator = LayoutInflater.FromContext context
-            view <- inflator.Inflate(Resource_Layout.city_spinner, parent, false)        
+            view <- inflator.Inflate(Resource_Layout.ForecastChild, parent, false)
+
+        let item = forecast.list.[groupPosition]
+        // Get views
+        let rangeText = view.FindViewById<TextView>(Resource_Id.rangeText)
+        let pressureText = view.FindViewById<TextView>(Resource_Id.pressureText)
+        let humidityText = view.FindViewById<TextView>(Resource_Id.humidityText)
+        let descriptionText = view.FindViewById<TextView>(Resource_Id.descriptionText)
+        // Set values
+        rangeText.Text <- formatRange KelvinToCelsiusString item.temp.min item.temp.max
+        pressureText.Text <- item.temp.pressure.ToString()
+        humidityText.Text <- formatHumidity item.temp.humidity
+        descriptionText.Text <- capitalize item.description
         view
 
     override this.GetGroup(groupPosition) = new Java.Lang.Object()
 
-    override this.GetGroupId(groupPosition) = int64 1
+    override this.GetGroupId(groupPosition) = int64 groupPosition
 
     override this.GetGroupView(groupPosition, isExpanded, convertView, parent) =
         let mutable view = convertView
         if view = null then
             let inflator = LayoutInflater.FromContext context
-            view <- inflator.Inflate(Resource_Layout.city_spinner, parent, false)
+            view <- inflator.Inflate(Resource_Layout.ForecastGroup, parent, false)
+
+        let item = forecast.list.[groupPosition]
+        // Get views
+        let dayText = view.FindViewById<TextView>(Resource_Id.dayText)
+        let tempText = view.FindViewById<TextView>(Resource_Id.tempText)
+        // Set values
+        dayText.Text <- item.date.ToString()
+        tempText.Text <- KelvinToCelsiusString item.temp.cur
         view
 
     override this.IsChildSelectable(groupPosition, childPosition) = false
 
-    override this.GroupCount with get() = 1
+    override this.GroupCount with get() = Array.length forecast.list
 
-    override this.HasStableIds with get() = true
+    override this.HasStableIds with get() = false
 
 
 [<Activity(Label = "Weather_v1", MainLauncher = true)>]
@@ -88,7 +109,6 @@ type MainActivity() =
         fahrenheitScale <- this.FindViewById<RadioButton>(Resource_Id.fahrenheitScale)
         forecastList <- this.FindViewById<ExpandableListView>(Resource_Id.forecastList)
 
-
         // Append adapter to spinner
         let citiesList = Array.sort [| "Turku"; "Helsinki"; "Tampere"; "Oulu"; "Rovaniemi" |]
         let citiesAdapter = new ArrayAdapter(this, Resource_Layout.city_spinner, citiesList)
@@ -117,6 +137,8 @@ type MainActivity() =
         // Radio buttons click listeners
         celsiusScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
         fahrenheitScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
+
+
     
     // Check if device has internet connection
     member this.isOnline() = hasInternetConnection this
@@ -173,6 +195,9 @@ type MainActivity() =
             // Load weather in different thread
             let thread = new Thread(new ThreadStart(backgroundLoad))
             thread.Start()
+            // Load forecast in different thread
+            let thread2 = new Thread(new ThreadStart(this.loadForecast))
+            thread2.Start()
         else
             let alert = new AlertDialog.Builder(this)
             alert.SetTitle("No internet connection")
@@ -191,7 +216,10 @@ type MainActivity() =
             |> Async.RunSynchronously  
             |> jsonToForecast
         
+        // Forecast adapter
+        forecastAdapter <- new ForecastListAdapter(this, this.forecast)
+
         // Update UI
         this.RunOnUiThread(fun () ->
-            ()
+            forecastList.SetAdapter(forecastAdapter)
         )

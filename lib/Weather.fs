@@ -36,6 +36,7 @@ type WeatherType = {
     temp : TempType
     wind : WindType
     description : string
+    date : DateTime
 }
 
 type CityType = {
@@ -80,6 +81,12 @@ module Weather =
 
     let convertKtoCString = convertKtoC >> formatDegrees "C"
 
+    // Format range
+    let formatRange formatter min max =  formatter min + " — " + formatter max
+
+    // Format humidity (add percent mark)
+    let formatHumidity h = h.ToString() + "%"
+
     // Get LatLng variable from JsonValue
     let jsonToLatLng (json:JsonValue) =
         let coord = {
@@ -116,6 +123,7 @@ module Weather =
             temp = jsonToTemp json.["main"]
             wind = jsonToWind json.["wind"]
             description = removeQuotes (json.["weather"].[0].["description"].ToString())
+            date = unixTimeToDateTime (float (json.["dt"]))
         }
         weather
 

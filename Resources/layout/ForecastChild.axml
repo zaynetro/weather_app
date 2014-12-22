@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <GridLayout
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/gridLayout1"
+        android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"
+        android:columnCount="2"
+        android:rowCount="4">
+        <TextView
+            android:text="Range"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Cell 1"
+            android:id="@+id/rangeText"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Pressure"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Cell 3"
+            android:id="@+id/pressureText"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Humidity"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Cell 5"
+            android:id="@+id/humidityText"
+            android:textSize="14dip"
+            android:layout_margin="10dp" />
+        <TextView
+            android:text="Cell 6"
+            android:id="@+id/descriptionText"
+            android:textSize="14dip"
+            android:layout_margin="10dp"
+            android:layout_columnSpan="2" />
+    </GridLayout>
+</LinearLayout>

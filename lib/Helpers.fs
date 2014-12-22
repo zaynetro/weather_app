@@ -37,6 +37,13 @@ module Helpers =
         | :? ConnectivityManager as cm -> (cm.ActiveNetworkInfo) <> null
         | _ -> false
 
+    // Convert unix timestamp to DateTime
+    let unixTimeToDateTime unix =
+        let date = (new DateTime(1970, 1, 1)).AddSeconds(unix)
+        date
+
+    let capitalize (str:string) = str.[0].ToString().ToUpper() + str.Substring(1)
+
     // Remove quotes from the string caused by JSONValue.toString()
     let removeQuotes(str:string) = 
         let str' = str.Replace("\"", "");
