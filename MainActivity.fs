@@ -61,7 +61,7 @@ type ForecastListAdapter(context:Context, forecast) =
         let dayText = view.FindViewById<TextView>(Resource_Id.dayText)
         let tempText = view.FindViewById<TextView>(Resource_Id.tempText)
         // Set values
-        dayText.Text <- item.date.ToString()
+        dayText.Text <- item.date.ToLocalTime().ToString()
         tempText.Text <- KelvinToCelsiusString item.temp.cur
         view
 
