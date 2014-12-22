@@ -109,6 +109,9 @@ module Weather =
 
     // Get Weather variable from JsonValue
     let jsonToWeather (json:JsonValue) =
+        let temp = json.["main"]
+        let wind = json.["wind"]
+        let desc = json.["weather"].[0].["description"]
         let weather = {
             temp = jsonToTemp json.["main"]
             wind = jsonToWind json.["wind"]
@@ -123,7 +126,7 @@ module Weather =
             name = removeQuotes (json.["name"].ToString())
             coords = jsonToLatLng json.["coord"]
             country = // Handle two different inputs
-                if json.ContainsKey "sys" then removeQuotes (json.["sys"].["country"].ToString())
+                if json.["sys"].ContainsKey "country" then removeQuotes (json.["sys"].["country"].ToString())
                 else removeQuotes (json.["country"].ToString())
         }
         city
@@ -140,6 +143,6 @@ module Weather =
     let jsonToForecast (json:JsonValue) =
         let forecast = {
             city = jsonToCity json.["city"]
-            list = [| for item in new JsonArray(json.["list"]) -> jsonToWeather item |]
+            list = [| for i in 0 .. (json.["list"].Count - 1) -> jsonToWeather (json.["list"].Item i) |]
         }
         forecast
