@@ -137,8 +137,6 @@ type MainActivity() =
         // Radio buttons click listeners
         celsiusScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
         fahrenheitScale.Click.AddHandler(new EventHandler(this.triggerDegreeScale))
-
-
     
     // Check if device has internet connection
     member this.isOnline() = hasInternetConnection this
@@ -185,6 +183,10 @@ type MainActivity() =
                 dateText.Text <- System.DateTime.Now.ToShortDateString()
                 descriptionText.Text <- this.city.weather.description
             )
+
+            // Load forecast in different thread
+            let thread = new Thread(new ThreadStart(this.loadForecast))
+            thread.Start()
         
         // Save selected city
         let selected = spinner.GetItemAtPosition(e.Position)
@@ -195,9 +197,6 @@ type MainActivity() =
             // Load weather in different thread
             let thread = new Thread(new ThreadStart(backgroundLoad))
             thread.Start()
-            // Load forecast in different thread
-            let thread2 = new Thread(new ThreadStart(this.loadForecast))
-            thread2.Start()
         else
             let alert = new AlertDialog.Builder(this)
             alert.SetTitle("No internet connection")
