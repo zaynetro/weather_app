@@ -31,7 +31,7 @@
             android:id="@+id/progressBar"
             android:visibility="invisible" />
         <TextView
-            android:text="Today"
+            android:text="@string/today"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/dateNewText"

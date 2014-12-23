@@ -13,7 +13,7 @@
         android:columnCount="2"
         android:rowCount="4">
         <TextView
-            android:text="Range"
+            android:text="@string/range"
             android:textSize="14dip"
             android:layout_margin="10dp" />
         <TextView
@@ -22,7 +22,7 @@
             android:textSize="14dip"
             android:layout_margin="10dp" />
         <TextView
-            android:text="Pressure"
+            android:text="@string/pressure"
             android:textSize="14dip"
             android:layout_margin="10dp" />
         <TextView
@@ -31,7 +31,7 @@
             android:textSize="14dip"
             android:layout_margin="10dp" />
         <TextView
-            android:text="Humidity"
+            android:text="@string/humidity"
             android:textSize="14dip"
             android:layout_margin="10dp" />
         <TextView
