@@ -58,15 +58,13 @@ type ForecastType = {
 
 module Weather = 
 
-    let roundUnits (temp:float<'u>) = System.Math.Round(float temp)
+    let roundUnits (temp:float<'u>) = System.Math.Round(float temp) * (LanguagePrimitives.FloatWithMeasure 1.0)
 
     // Convert temperatures using units of measure
-    let convertKtoC (temp:float<K>) = roundUnits (temp * 1.0<C/K> - 273.15<C>) * 1.0<C>
-    let convertKtoF (temp:float<K>) = roundUnits (temp * 1.8<F/K> - 459.67<F>) * 1.0<F>
+    let convertKtoC (temp:float<K>) = roundUnits <| temp * 1.0<C/K> - 273.15<C>
+    let convertKtoF (temp:float<K>) = roundUnits <| temp * 1.8<F/K> - 459.67<F>
 
-    let convertStringtoK str = 
-        let temp = (float str) * 1.0<K>
-        temp
+    let convertStringtoK str = (float str) * 1.0<K>
 
     // Add scale to the temperature
     let formatDegrees (scale:string) (temp:float<'u>) =
