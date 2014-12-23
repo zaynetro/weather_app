@@ -179,7 +179,6 @@ type MainActivity() =
             this.setTempVal (getSavedVal "scale")
             // Update UI
             this.RunOnUiThread(fun () ->
-                progressBar.Visibility <- ViewStates.Invisible
                 dateText.Text <- System.DateTime.Now.ToShortDateString()
                 descriptionText.Text <- this.city.weather.description
             )
@@ -220,5 +219,6 @@ type MainActivity() =
 
         // Update UI
         this.RunOnUiThread(fun () ->
+            progressBar.Visibility <- ViewStates.Invisible
             forecastList.SetAdapter(forecastAdapter)
         )
