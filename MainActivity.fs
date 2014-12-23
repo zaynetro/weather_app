@@ -40,7 +40,7 @@ type ForecastListAdapter(context:Context, forecast) =
         let humidityText = view.FindViewById<TextView>(Resource_Id.humidityText)
         let descriptionText = view.FindViewById<TextView>(Resource_Id.descriptionText)
         // Set values
-        rangeText.Text <- formatRange KelvinToCelsiusString item.temp.min item.temp.max
+        rangeText.Text <- formatRange convertKtoCString item.temp.min item.temp.max
         pressureText.Text <- formatPressure item.temp.pressure
         humidityText.Text <- formatHumidity item.temp.humidity
         descriptionText.Text <- capitalize item.description
@@ -62,7 +62,7 @@ type ForecastListAdapter(context:Context, forecast) =
         let tempText = view.FindViewById<TextView>(Resource_Id.tempText)
         // Set values
         dayText.Text <- item.date.ToLocalTime().ToString()
-        tempText.Text <- KelvinToCelsiusString item.temp.cur
+        tempText.Text <- convertKtoCString item.temp.cur
         view
 
     override this.IsChildSelectable(groupPosition, childPosition) = false
@@ -145,8 +145,8 @@ type MainActivity() =
     member this.setTempVal scale =
         let value =
             match scale with
-            | "C" -> KelvinToCelsiusString this.city.weather.temp.cur
-            | "F" -> KelvinToFahrenheitString this.city.weather.temp.cur
+            | "C" -> convertKtoCString this.city.weather.temp.cur
+            | "F" -> convertKtoFString this.city.weather.temp.cur
             | _ -> ""
         
         this.RunOnUiThread(fun () ->

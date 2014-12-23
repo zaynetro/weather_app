@@ -6,13 +6,13 @@ open System.Json
 open Helpers
 
 [<Measure>] type K
-[<Measure>] type degC
-[<Measure>] type degF
+[<Measure>] type C
+[<Measure>] type F
 
 type TempValue = 
     | Kelvin of float<K>
-    | Celsius of float<degC>
-    | Fahrenheit of float<degF>
+    | Celsius of float<C>
+    | Fahrenheit of float<F>
 
 type WindType = {
     speed : float
@@ -20,9 +20,9 @@ type WindType = {
 }
 
 type TempType = {
-    cur : float
-    min : float
-    max : float
+    cur : float<K>
+    min : float<K>
+    max : float<K>
     humidity : int
     pressure : int
 }
@@ -57,15 +57,16 @@ type ForecastType = {
 }
 
 module Weather = 
-    // Temperature scales transformation
-    let KelvinToCelsius temp = System.Math.Round(temp - 273.15)
-    let KelvinToFahrenheit temp = System.Math.Round(temp * 1.8 - 459.67)
+
+    let roundUnits (temp:float<'u>) = System.Math.Round(float temp)
 
     // Convert temperatures using units of measure
-    let convertKtoC (temp:float<K>) = temp * 1.0<degC/K> - 273.15<degC>
-    let convertKtoF (temp:float<K>) = temp * 1.8<degF/K> - 459.67<degF>
+    let convertKtoC (temp:float<K>) = roundUnits (temp * 1.0<C/K> - 273.15<C>) * 1.0<C>
+    let convertKtoF (temp:float<K>) = roundUnits (temp * 1.8<F/K> - 459.67<F>) * 1.0<F>
 
-    let convertStringtoK str = let temp = (float str) * 1.0<K> in str
+    let convertStringtoK str = 
+        let temp = (float str) * 1.0<K>
+        temp
 
     // Add scale to the temperature
     let formatDegrees (scale:string) (temp:float<'u>) =
@@ -76,10 +77,8 @@ module Weather =
         sign + abs(temp).ToString() + "°" + scale
 
     // Transform Kelvin to string with degrees mark
-    let KelvinToCelsiusString = KelvinToCelsius >> formatDegrees "C"
-    let KelvinToFahrenheitString = KelvinToFahrenheit >> formatDegrees "F"
-
     let convertKtoCString = convertKtoC >> formatDegrees "C"
+    let convertKtoFString = convertKtoF >> formatDegrees "F"
 
     // Format range
     let formatRange formatter min max =  formatter min + " — " + formatter max
@@ -101,9 +100,9 @@ module Weather =
     // Get Temp variable from JsonValue
     let jsonToTemp (json:JsonValue) =
         let temp = {
-            cur = float (json.["temp"])
-            min = float (json.["temp_min"])
-            max = float (json.["temp_max"])
+            cur = convertStringtoK (json.["temp"].ToString())
+            min = convertStringtoK (json.["temp_min"].ToString())
+            max = convertStringtoK (json.["temp_max"].ToString())
             humidity = int (json.["humidity"])
             pressure =  int (json.["pressure"])
         }
