@@ -90,9 +90,8 @@ type MainActivity() =
     member this.setTempVal scale =
         let value =
             match scale with
-            | "C" -> convertKtoCString this.city.weather.temp.cur
             | "F" -> convertKtoFString this.city.weather.temp.cur
-            | _ -> "Failed"
+            | _ -> convertKtoCString this.city.weather.temp.cur
 
         this.RunOnUiThread(fun () ->
             tempText.Text <- value
