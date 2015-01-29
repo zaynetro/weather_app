@@ -1,9 +1,18 @@
 ﻿# Weather app
 
-Simple Android application on F# for checking weather
+Android application created to learn F#.
+
+Cities included:
+
+* Helsinki
+* Turku
+* Oulu
+* Rovaniemi
+* Tampere
+
+<a href="https://github.com/zaynetro/weather_app/raw/master/Screenshots/screenshot-1.png"><img src="https://github.com/zaynetro/weather_app/raw/master/Screenshots/screenshot-1.png" width="200" /></a>
 
 ## TO DO
 
-1. Use one request to the server (only forecast)
-2. Move weather and forecast modules to fragments
-3. Use images to indicate weather ?
+1. Move weather and forecast modules to fragments
+1. Use images to indicate weather ?
