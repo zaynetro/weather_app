@@ -1,4 +1,4 @@
-﻿namespace Weather_v1
+﻿namespace weather_app
 
 open System
 open Android.App
@@ -10,7 +10,6 @@ open Android.Widget
 open Android.Net
 open Android.Graphics
 open System.Net
-open System.Json
 open System.Threading
 
 // Load modules

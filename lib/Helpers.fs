@@ -1,4 +1,4 @@
-﻿namespace Weather_v1
+﻿namespace weather_app
 
 open System
 open System.Net
